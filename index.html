@@ -16,8 +16,8 @@
     <div>
       <label for="format">Format</label>
       <select name="format" id="format">
-        <option value="webm">WebM</option>
         <option value="mp4" selected>MP4</option>
+        <option value="webm" disabled>WebM</option>
       </select>
     </div>
     <div>
@@ -25,17 +25,17 @@
       <select name="resolution" id="resolution">
         <option value="original">1x</option>
         <option value="double">2x</option>
-        <option value="720" selected>720p</option>
-        <option value="1080">1080p</option>
+        <option value="720">720p</option>
+        <option value="1080" selected>1080p</option>
         <option value="1440">1440p</option>
         <option value="2160">2160p</option>
       </select>
     </div>
-    <div>
+    <div _style="display:none;">
       <label for="quality">Quality</label>
       <select name="quality" id="quality">
-        <option value="low">low</option>
-        <option value="normal" selected>normal</option>
+        <option value="low" selected>low</option>
+        <option value="normal">normal</option>
         <option value="best">best</option>
       </select>
     </div>
@@ -43,7 +43,8 @@
       <label for="interval">Page advance interval</label>
       <select name="interval" id="interval">
         <option value="1">1 second for UnaSlides</option>
-        <option value="2" selected>2 seconds for VRC-LT</option>
+        <option value="2">2 seconds for VRC-LT</option>
+        <option value="3" selected>5 seconds</option>
       </select>
     </div>
     <div><input name="run" id="run" type="button" value="Start Conversion"/></div>
@@ -56,8 +57,7 @@
       <li>Applying "Enhanced Security" in Microsoft Edge to this site will slow down the processing speed. Please read the <a href="https://learn.microsoft.com/ja-jp/deployedge/microsoft-edge-security-browse-safer">MS site documentation</a> and try adding it as an exception.</li></li>
     </ol>
     <footer>
-      Please contact <a href="https://github.com/vrc-lt/pdf2webm
-/">Github</a> to report bugs or suggestions for improvement.
+      Please contact <a href="https://github.com/webolizzer/pdf2webm/">Github</a> to report bugs or suggestions for improvement.
     </footer>
   </body>
 </html>
