@@ -9,7 +9,16 @@ This is a tool that converts PDFs to WebM in the browser using pdf.js and ffmpeg
 Files will be generated under `dist/` with the following command:
 ```bash
 npm run build
-````
+```
+then
+```
+cd dist
+```
+then
+
+```bash
+npm run preview
+```
 
 It can be used by publishing the output as a website.
 
@@ -19,8 +28,7 @@ Developed using [Vite](https://vitejs.dev/). You can start the development serve
 
 ```bash
 npm run dev
-```
-
+```                                                                                                          
 ## Deployment
 
 Cloudflare Pages deployment is supported. Please upload the `dist/` directory after building using wrangler.
