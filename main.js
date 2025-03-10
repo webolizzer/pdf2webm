@@ -1,6 +1,5 @@
 import {getDocument, GlobalWorkerOptions} from 'pdfjs-dist/build/pdf'
-import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min?url'
-import {FFmpeg} from '@ffmpeg/ffmpeg'
+import pdfjsWorker from 'pdfjs-dist/build/pdf.worker.min?url'                                                import {FFmpeg} from '@ffmpeg/ffmpeg'
 
 // Version string for vendor files (likely for cache busting)
 const vender_version = '1663764183'
@@ -20,10 +19,12 @@ const output_file = () => `result.${format.value}`
 // Function to generate output MIME type based on selected format
 const output_mime = () => `video/${format.value}`
 // Function to determine ffmpeg quality settings based on quality select element
+/*
 const quality = () => {
   switch(document.getElementById("quality").value) {
     case 'low':
-      return [] // Low quality settings (empty array means default)
+      // return [] // Low quality settings (empty array means default)
+      return ['-crf', '25', '-b:v', '500000']
     case 'best':
       // Best quality settings: high CRF, bitrate, quality, and slow speed
       return ['-crf', '4', '-b:v', '5000000', '-quality', 'best', '-speed', '4']
@@ -32,10 +33,25 @@ const quality = () => {
       return ['-crf', '4', '-b:v', '5000000']
   }
 }
+*/
+
+const quality = () => {
+  switch(document.getElementById("quality").value) {
+    case 'low':
+      return ['-crf', '28'] // Lower Quality, smaller file size
+    case 'best':
+      return ['-crf', '18'] // High Quality, moderate file size
+    default: // Normal quality
+      return ['-crf', '23'] // Medium Quality (default)
+  }                                                                                                          }                                                                                                            
 // Function to generate download file name based on input file, resolution, interval, and format
-const dl_filename = () => `${input_file.replace(/\.[^.]+$/, '')}.${y_size}p.t${interval.value}.${format.value}`
+// const dl_filename = () => `${input_file.replace(/\.[^.]+$/, '')}.${y_size}p.t${interval.value}.${format.value}`                                                                                                        const dl_filename = () => `${input_file.replace(/\.[^.]+$/, '')}.${format.value}`
+
+// !!! original>
+/*
 // Function to determine video encoding arguments based on selected format
-const encode_args = () => format.value == 'mp4'? ['-c:v', 'libx264', '-r', '30']: ['-c:v', 'libvpx', ...quality(),]
+ const encode_args = () => format.value == 'mp4'? ['-c:v', 'libx264', '-r', '30']: ['-c:v', 'libvpx', ...quality(),]
+
 // Function to determine framerate string for ffmpeg based on selected interval
 const framerate = () => {
   switch(interval.value) {
@@ -52,6 +68,147 @@ const ffmpeg_args = () => ['-y', // Overwrite output files without asking
   '-pix_fmt', 'yuv420p', // Pixel format for compatibility
   output_file() // Output file name
 ]
+*/
+// !!!/>
+
+
+// !!!>
+
+// Function to determine video encoding arguments based on selected format
+const encode_args = () =>
+  format.value == 'mp4' ? ['-c:v', 'libx264', '-r', '30', ...quality(),] : ['-c:v', 'libvpx', ...quality(),]
+
+// Function to determine framerate string for ffmpeg based on selected interval
+const framerate = () => {
+  switch(interval.value) {
+    case '1': return '1' // 1 frame per second
+    case '2': return '1/2' // 1 frame per 2 seconds
+    case '3': return '1/5' // 1 frame per 5 seconds
+  }
+}
+
+// Function to generate complete ffmpeg command arguments
+const ffmpeg_args = () => ['-y', // Overwrite output files without asking
+  '-pattern_type', 'glob', // Enable glob pattern matching for input files
+  '-r', framerate(), // Set input framerate
+  '-i', 'page*.png', // Input files are page PNG images
+  ...encode_args(), // Video encoding arguments (format and quality dependent)
+  '-pix_fmt', 'yuv420p', // Pixel format for compatibility
+  output_file() // Output file name
+]
+
+// !!!/>
+
+
+// !!!
+/*
+// Update framerate to 1 FPS input for the 5-second option
+const framerate = () => {
+  switch(interval.value) {
+    case '1': return '1';
+    case '2': return '1/2';
+    case '3': return '1'; // Input: 1 frame per second
+  }
+}
+
+// Modify encode_args to handle output framerate for 5-second case
+const encode_args = () => {
+  if (interval.value === '3') {
+    // For 5-second option, force output to 0.2 FPS (1/5)
+    return format.value === 'mp4'
+      ? ['-c:v', 'libx264', '-r', '0.2']
+      : ['-c:v', 'libvpx', ...quality(), '-r', '0.2'];
+  } else {
+    // Original behavior for other intervals
+    return format.value === 'mp4'
+      ? ['-c:v', 'libx264', '-r', '30']
+      : ['-c:v', 'libvpx', ...quality()];
+  }
+}
+
+// Keep ffmpeg_args unchanged
+const ffmpeg_args = () => [
+  '-y',
+  '-pattern_type', 'glob',
+  '-r', framerate(),
+  '-i', 'page*.png',
+  ...encode_args(),
+  '-pix_fmt', 'yuv420p',
+  output_file()
+]
+*/
+// !!!/>
+
+
+
+
+
+
+// !!!
+/*
+// Update framerate function to return 0.2 (1/5 fps)
+const framerate = () => {
+  switch(interval.value) {
+    case '1': return '1';
+    case '2': return '1/2';
+    case '3': return '0.2'; // 1 frame every 5 seconds
+  }
+}
+
+// Keep ffmpeg_args simple (no filters needed)
+const ffmpeg_args = () => [
+  '-y',
+  '-pattern_type', 'glob',
+  '-r', framerate(),
+  '-i', 'page*.png',
+  ...encode_args(),
+  '-pix_fmt', 'yuv420p',
+  output_file()
+]
+*/
+// !!!/>
+
+
+// !!!
+/*
+// Update framerate function
+const framerate = () => {
+  switch(interval.value) {
+    case '1': return '1';
+    case '2': return '1/2';
+    case '3': return '1'; // 1 frame per second, but stretched via filter
+  }
+}
+
+// Modify ffmpeg_args to include the setpts filter for interval '3'
+const ffmpeg_args = () => {
+  const baseArgs = [
+    '-y',
+    '-pattern_type', 'glob',
+    '-r', framerate(),
+    '-i', 'page*.png',
+    ...encode_args(),
+    '-pix_fmt', 'yuv420p',
+    output_file()
+  ];
+  if (interval.value === '3') {
+    // Insert the video filter before the codec arguments
+    return [
+      '-y',
+      '-pattern_type', 'glob',
+      '-r', framerate(),
+      '-i', 'page*.png',
+      '-vf', 'setpts=PTS*5', // Stretch each frame to 5 seconds
+      ...encode_args(),
+      '-pix_fmt', 'yuv420p',
+      output_file()
+    ];
+  }
+  return baseArgs;
+}
+*/
+// !!!/>
+
 
 // Get references to more HTML elements
 const r = document.getElementById("resolution") // Resolution select element
